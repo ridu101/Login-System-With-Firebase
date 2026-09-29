@@ -1,10 +1,11 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "../firebase.init";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router";
+import Swal from "sweetalert2";
 
 const Register = () => {
   // for error
@@ -80,8 +81,21 @@ const Register = () => {
       .then((result) => {
         console.log("after create a new user", result.user);
         setSuccess(true);
-        toast.success("Account Created Successfully!!");
+        // toast.success("Account Created Successfully!!");
         e.target.reset();
+        // validate the email before registration 
+        sendEmailVerification(result.user)
+          .then( () =>{
+              Swal.fire({
+              title: "Account Created Successfully!",
+              text: "Please verify your email address. After verification, you can login.",
+              icon: "success",
+              confirmButtonText: "OK",
+            })
+          })
+          .catch(error=>{
+            toast.error(error.message);
+          })
       })
       .catch((error) => {
         console.log(error);
@@ -134,7 +148,7 @@ const Register = () => {
                       to="/login"
                       className="text-blue-600 font-semibold link link-hover"
                     >
-                      Sign In
+                      Log In
                     </Link>
                   </span>
                 </p>
