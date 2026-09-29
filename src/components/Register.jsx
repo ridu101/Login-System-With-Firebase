@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth } from "../firebase.init";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,7 +18,9 @@ const Register = () => {
     const email = e.target.email.value;
     const password = e.target.password.value;
     const terms = e.target.terms.checked;
-    console.log(email, password, terms);
+    const name = e.target.name.value;
+    const photo = e.target.photo.value;
+    console.log(email, password, terms,name,photo);
 
     // at once validations
     const passwordPattern =
@@ -83,6 +85,15 @@ const Register = () => {
         setSuccess(true);
         // toast.success("Account Created Successfully!!");
         e.target.reset();
+        // update user
+        const profile = {
+          displayName: name,
+          photoURL:photo
+        }
+        updateProfile(result.user, profile)
+          .then()
+          .catch()
+          
         // validate the email before registration 
         sendEmailVerification(result.user)
           .then( () =>{
@@ -117,12 +128,28 @@ const Register = () => {
           <div className="card-body">
             <form onSubmit={handleRegister}>
               <fieldset className="fieldset">
+                {/* email */}
                 <label className="label">Email</label>
                 <input
                   type="email"
                   className="input"
                   name="email"
                   placeholder="Email"
+                />
+                {/* name */}
+                <label className="label">Name</label>
+                <input
+                  type="text"
+                  className="input"
+                  name="name"
+                  placeholder="Your Name"
+                />
+                <label className="label">Photo URL</label>
+                <input
+                  type="text"
+                  className="input"
+                  name="photo"
+                  placeholder="Your Photo URL"
                 />
                 <label className="label">Password</label>
                 <input
