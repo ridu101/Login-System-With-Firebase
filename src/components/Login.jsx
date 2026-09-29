@@ -1,22 +1,22 @@
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-
+import {
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { Link } from "react-router";
-
 import { auth } from "../firebase.init";
-
-import { useState } from "react";
-
+import { useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 
 const Login = () => {
   // for error
   const [error, setError] = useState("");
-
   // for success
   const [success, setSuccess] = useState(false);
 
+  const emailRef = useRef();
   const handleLogin = (e) => {
     e.preventDefault();
 
@@ -31,16 +31,17 @@ const Login = () => {
 
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
-        console.log(result.user);
-
-        // check email verification
+        // check email verification first
         if (!result.user.emailVerified) {
           toast.error("Please verify your email before login.");
-          // logout the user
+
+          // logout unverified user
           signOut(auth);
+
           return;
         }
-        // email verified
+        // only verified user will reach here
+        console.log("Verified User:", result.user);
         setSuccess(true);
         toast.success("Login Successful!!");
       })
@@ -48,6 +49,30 @@ const Login = () => {
         console.log(error.message);
 
         setError(error.message);
+        toast.error(error.message);
+      });
+  };
+
+  const handleForgotPassword = () => {
+    const email = emailRef.current.value;
+
+    if (email.length === 0) {
+      toast.error("Please Enter Email in The Input Field");
+      return;
+    }
+
+    console.log("forgot button clicked", email);
+
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        Swal.fire({
+          title: "Reset Link Sent !!",
+          text: "Please Open Your Email And Reset Your Password",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      })
+      .catch((error) => {
         toast.error(error.message);
       });
   };
@@ -74,6 +99,7 @@ const Login = () => {
                   className="input"
                   name="email"
                   placeholder="Email"
+                  ref={emailRef}
                 />
 
                 <label className="label">Password</label>
@@ -86,7 +112,9 @@ const Login = () => {
                 />
 
                 <div>
-                  <a className="link link-hover">Forgot password?</a>
+                  <a onClick={handleForgotPassword} className="link link-hover">
+                    Forgot password?
+                  </a>
                 </div>
 
                 <button className="btn btn-neutral mt-4">Login</button>

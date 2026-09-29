@@ -137,9 +137,6 @@ const Register = () => {
                     Accept our Terms and Conditions
                   </label>
                 </div>
-                <div>
-                  <a className="link link-hover">Forgot password?</a>
-                </div>
                 <button className="btn btn-neutral mt-4">Register</button>
                 <p>
                   Already Have an Account ?{" "}
